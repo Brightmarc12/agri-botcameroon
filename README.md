@@ -2,7 +2,9 @@
 
 **Agri-Bot Cameroon** is a versatile, multilingual AI agent designed to provide critical agricultural information to farmers in Cameroon. It operates via a simple JSON API endpoint, making it easy to integrate with platforms like Telex.im. The agent provides real-time market prices, pest/disease diagnosis, weather forecasts, farming best practices, and more, in both English and French.
 
-🔗 **Live API Endpoint:** `https://agri-botcameroon.onrender.com/agent`
+🔗 **Live API Endpoints:**
+- AWS Elastic Beanstalk: `http://Agri-bot-cameroon-env.eba-hmxpx9yd.us-east-1.elasticbeanstalk.com/agent`
+- Render (Backup): `https://agri-botcameroon.onrender.com/agent`
 
 ---
 
@@ -119,9 +121,30 @@ The application will be running at http://127.0.0.1:5000.
 
 ---
 
+## 🔌 Telex.im Integration
+
+This agent is fully integrated with **Telex.im** using the A2A (Agent-to-Agent) protocol. The agent supports both A2A JSON-RPC format and simple REST API format for maximum compatibility.
+
+### Features:
+- ✅ **Dual Format Support**: Automatically handles both A2A JSON-RPC and simple JSON requests
+- ✅ **Debug Logging**: Comprehensive request logging for troubleshooting
+- ✅ **Multilingual**: Responds in both English and French based on user input
+- ✅ **A2A Protocol Compliant**: Fully compatible with Mastra/Typescript agents
+
+### Integrating with Telex.im:
+
+1. **Import the Workflow JSON**: Use the `agri_bot_workflow.json` file to import the agent into your Telex workspace
+2. **Configure the Endpoint**: The workflow is pre-configured with the AWS Elastic Beanstalk endpoint
+3. **Test Interaction**: Start chatting with the agent in your Telex channel
+
+**Workflow File:** `agri_bot_workflow.json`
+
+---
+
 ## 🛠️ Tech Stack
 
 * 🐍 **Language:** Python
 * 🌶️ **Framework:** Flask
 * ⚙️ **Server:** Gunicorn
-* ☁️ **Deployment:** Render
+* ☁️ **Deployment:** AWS Elastic Beanstalk (Primary) | Render (Backup)
+* 🤝 **Integration:** Telex.im A2A Protocol

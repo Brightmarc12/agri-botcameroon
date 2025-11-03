@@ -1,0 +1,27 @@
+{
+    "active": true,
+    "category": "utilities",
+    "name": "agri_bot_cameroon",
+    "description": "An AI agent providing vital agricultural info for farmers in Cameroon.",
+    "long_description": "🌾 Agri-Bot Cameroon is a versatile, multilingual AI agent designed to provide critical agricultural information. It can provide real-time market prices, pest/disease diagnosis, weather forecasts, farming best practices, soil information, and fertilizer guides in both English and French. When a user sends a message, the agent analyzes the keywords to determine the user's intent and provides a helpful, formatted response. For example, a message containing 'price of cocoa' will return the current market price, while a message like 'problème avec mon maïs' will trigger the diagnostic feature.",
+    "id": "agri-bot-001",
+    "nodes": [
+      {
+        "id": "agri_bot_node",
+        "name": "Agri-Bot Cameroon Agent",
+        "parameters": {},
+        "position": [
+          800,
+          -100
+        ],
+        "type": "a2a/mastra-a2a-node",
+        "typeVersion": 1,
+        "url": "http://Agri-bot-cameroon-env.eba-hmxpx9yd.us-east-1.elasticbeanstalk.com/agent"
+      }
+    ],
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "short_description": "AI assistant for Cameroonian farmers."
+  }

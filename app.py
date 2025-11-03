@@ -4,6 +4,11 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
+# Health Check endpoint for AWS
+@app.route('/', methods=['GET'])
+def health_check():
+    return "OK", 200
+
 # --- AGENT'S EXPANDED KNOWLEDGE BASE ---
 
 # English keys are our "master" keys
@@ -69,16 +74,105 @@ translations = {
 
 
 @app.route('/agent', methods=['POST'])
+
 def telex_agent():
-    incoming_data = request.get_json()
-    user_message = incoming_data.get('message', '').lower()
-    
+    try:
+        incoming_data = request.get_json()
+        print(f"DEBUG: Received request: {incoming_data}")
+        print(f"DEBUG: Request headers: {dict(request.headers)}")
+
+        # Try to handle A2A JSON-RPC format first (from Mastra/Telex)
+        if isinstance(incoming_data, dict) and incoming_data.get('jsonrpc') == '2.0':
+            method = incoming_data.get('method')
+            params = incoming_data.get('params', {})
+
+            # Extract message from A2A format (Telex sends method: "message/send")
+            if method in ['message', 'message/send'] and 'message' in params:
+                message_obj = params['message']
+                user_message = ''
+
+                if isinstance(message_obj, dict) and 'parts' in message_obj:
+                    text_parts = []
+                    for part in message_obj['parts']:
+                        if isinstance(part, dict):
+                            # Telex format: {"kind": "text", "text": "..."}
+                            if part.get('kind') == 'text' and 'text' in part:
+                                text_parts.append(part['text'])
+                            # Simple format: {"text": "...", "contentType": "text/plain"}
+                            elif 'text' in part:
+                                text_parts.append(part['text'])
+                    user_message = ' '.join(text_parts).strip()
+                elif isinstance(message_obj, str):
+                    user_message = message_obj
+                else:
+                    user_message = str(message_obj)
+
+                response_text = process_message(user_message.lower())
+
+                return jsonify({
+                    "jsonrpc": "2.0",
+                    "id": incoming_data.get('id'),
+                    "result": {
+                        "message": {
+                            "parts": [
+                                {"text": response_text, "contentType": "text/plain"}
+                            ]
+                        }
+                    }
+                })
+            else:
+                # Fallback: try to get message directly
+                user_message = params.get('message', '') if isinstance(params, dict) else ''
+                if user_message:
+                    response_text = process_message(user_message.lower())
+                    return jsonify({
+                        "jsonrpc": "2.0",
+                        "id": incoming_data.get('id'),
+                        "result": {
+                            "message": {
+                                "parts": [
+                                    {"text": response_text, "contentType": "text/plain"}
+                                ]
+                            }
+                        }
+                    })
+
+                return jsonify({
+                    "jsonrpc": "2.0",
+                    "id": incoming_data.get('id'),
+                    "error": {"code": -32602, "message": "Invalid params - unable to extract message"}
+                }), 400
+
+        # Handle simple JSON format (for testing)
+        user_message = ''
+        if isinstance(incoming_data, dict):
+            user_message = incoming_data.get('message', '')
+        if user_message:
+            response_text = process_message(user_message.lower())
+            return jsonify({"response": response_text})
+
+        return jsonify({"error": "Invalid request format"}), 400
+
+    except Exception as exc:
+        print(f"ERROR: Exception in /agent: {exc}")
+        # If request was A2A, try to return JSON-RPC error; else return simple JSON error
+        if isinstance(incoming_data, dict) and incoming_data.get('jsonrpc') == '2.0':
+            return jsonify({
+                "jsonrpc": "2.0",
+                "id": incoming_data.get('id'),
+                "error": {"code": -32000, "message": "Internal server error"}
+            }), 500
+        return jsonify({"error": "Internal server error"}), 500
+
+
+def process_message(user_message):
+    """Process the user message and return the appropriate response"""
     is_french = any(word in user_message for word in ['prix', 'météo', 'aide', 'problème', 'conseil', 'sol', 'engrais', 'quel', 'est'])
     
     response_text = ""
 
     if any(keyword in user_message for keyword in ['problem', 'problème', 'disease']):
-        response_text = handle_problem(user_message) # Problem handler is language-agnostic for now
+        response_text = handle_problem(user_message)
     elif any(keyword in user_message for keyword in ['price', 'prix']):
         response_text = handle_price(user_message, is_french)
     elif any(keyword in user_message for keyword in ['weather', 'météo']):
@@ -94,7 +188,7 @@ def telex_agent():
     else:
         response_text = translations['unknown_command'] if is_french else "Sorry, I don't understand. Type 'help' to see what I can do."
 
-    return jsonify({"response": response_text})
+    return response_text
 
 
 def get_english_keyword(message):
