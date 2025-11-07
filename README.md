@@ -77,9 +77,8 @@ A2A response (JSON‑RPC):
   "jsonrpc": "2.0",
   "id": "123",
   "result": {
-    "message": {
-      "parts": [ { "text": "Le prix actuel du marché pour cacao est de 1,500 XAF per kg.", "contentType": "text/plain" } ]
-    }
+    "role": "assistant",
+    "parts": [ { "kind": "text", "text": "Le prix actuel du marché pour cacao est de 1,500 XAF per kg." } ]
   }
 }
 ```

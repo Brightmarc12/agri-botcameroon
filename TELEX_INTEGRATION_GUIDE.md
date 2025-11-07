@@ -37,9 +37,8 @@ def telex_agent():
             "jsonrpc": "2.0",
             "id": incoming_data.get('id'),
             "result": {
-                "message": {
-                    "parts": [{"text": response_text, "contentType": "text/plain"}]
-                }
+                "role": "assistant",
+                "parts": [{"kind": "text", "text": response_text}]
             }
         })
     
@@ -83,14 +82,13 @@ def telex_agent():
   "jsonrpc": "2.0",
   "id": 123,
   "result": {
-    "message": {
-      "parts": [
-        {
-          "text": "The current market price for cocoa is 1,500 XAF per kg.",
-          "contentType": "text/plain"
-        }
-      ]
-    }
+    "role": "assistant",
+    "parts": [
+      {
+        "kind": "text",
+        "text": "The current market price for cocoa is 1,500 XAF per kg."
+      }
+    ]
   }
 }
 ```

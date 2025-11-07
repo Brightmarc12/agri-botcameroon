@@ -113,11 +113,10 @@ def telex_agent():
                     "jsonrpc": "2.0",
                     "id": incoming_data.get('id'),
                     "result": {
-                        "message": {
-                            "parts": [
-                                {"text": response_text, "contentType": "text/plain"}
-                            ]
-                        }
+                        "role": "assistant",
+                        "parts": [
+                            {"kind": "text", "text": response_text}
+                        ]
                     }
                 })
             else:
@@ -129,11 +128,10 @@ def telex_agent():
                         "jsonrpc": "2.0",
                         "id": incoming_data.get('id'),
                         "result": {
-                            "message": {
-                                "parts": [
-                                    {"text": response_text, "contentType": "text/plain"}
-                                ]
-                            }
+                            "role": "assistant",
+                            "parts": [
+                                {"kind": "text", "text": response_text}
+                            ]
                         }
                     })
 
